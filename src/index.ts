@@ -266,11 +266,22 @@ export class BillPlz {
     collection_id: string;
     email: string;
     mobile: string;
+    name: string;
+    amount: number;
+    callback_url: string;
+    description: string;
+    due_at?: string; // TODO: formatter YYYY-MM-DD
+    redirect_url?: string;
+    deliver?: boolean;
+    reference_1_label?: string;
+    reference_1?: string;
+    reference_2_label?: string;
+    reference_2?: string;
   }): Promise<{
     id: string;
     collection_id: string;
     paid: boolean;
-    status: string;
+    state: string;
     amount: number;
     paid_amout: number;
     due_at: string;
@@ -288,6 +299,71 @@ export class BillPlz {
     return await this.request({
       url: "/v3/bills",
       method: "POST",
+      body: payload,
+    });
+  }
+
+  async getBill(id: string): Promise<{
+    id: string;
+    collection_id: string;
+    paid: boolean;
+    state: string;
+    amount: number;
+    paid_amout: number;
+    due_at: string;
+    mobile: string | null;
+    name: string;
+    url: string;
+    reference_1_label: string;
+    reference_1: string | null;
+    reference_2_label: string;
+    reference_2: string | null;
+    redirect_url: string | null;
+    callback_url: string;
+    description: string;
+  }> {
+    return await this.request({
+      url: `/v3/bills/${id}`,
+      method: "GET",
+    });
+  }
+
+  async deleteBill(id: string): Promise<{}> {
+    return await this.request({
+      url: `/v3/bills/${id}`,
+      method: "DELETE",
+    });
+  }
+
+  async registrationCheckByBankAccountNumber(id: string): Promise<{
+    name: string;
+  }> {
+    return await this.request({
+      url: `/v3/check/bank_account_number/${id}`,
+      method: "GET",
+    });
+  }
+
+  async getTransactionIndex(
+    id: string,
+    page?: string,
+    status?: string
+  ): Promise<{
+    bill_id: string;
+    transaction: Array<{
+      id: string;
+      status: string; // TODO: refactor enums "pending", "completed", "failed"
+      completed_at: string;
+      payment_channel: string; // TODO: refactor enums "AMEXMBB" "BANKISLAM" "BOOST" "TOUCHNGO" "EBPGMBB" "FPX" "FPXB2B1" "MPGS" "OCBC" "PAYDEE" "RAZERPAYWALLET" "SECUREACCEPTANCE" "SENANGPAY" "TWOCTWOP" "TWOCTWOPIPP" "TWOCTWOPWALLET"
+    }>;
+  }> {
+    return await this.request({
+      url: `/v3/bills/${id}/transactions`,
+      method: "GET",
+      params: {
+        page,
+        status,
+      },
     });
   }
 }
