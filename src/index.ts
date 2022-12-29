@@ -170,7 +170,7 @@ export class BillPlz {
     url: string;
   }> {
     return await this.request({
-      url: "/open_collections",
+      url: "/v3/open_collections",
       method: "POST",
       body: payload,
     });
